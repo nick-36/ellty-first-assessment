@@ -1,53 +1,84 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/button";
-import { Checkbox } from "@/components/checkbox";
-import { useEffect, useState } from "react";
+import { Button } from '@/components/button'
+import { Checkbox } from '@/components/checkbox'
+import { useCallback, useEffect, useReducer, useState } from 'react'
 
 interface CheckboxItem {
-  id: number;
-  label: string;
-  checked: boolean;
+  id: number
+  label: string
+  checked: boolean
 }
+interface CheckboxListProps {
+  listItems: CheckboxItem[]
+  selectAllTitle: string
+}
+
+interface CheckboxState {
+  items: CheckboxItem[]
+  selectAll: boolean
+}
+
+type CheckboxAction =
+  | { type: 'TOGGLE_ALL'; payload: boolean }
+  | { type: 'TOGGLE_ITEM'; payload: number }
+
+function checkboxReducer(
+  state: CheckboxState,
+  action: CheckboxAction
+): CheckboxState {
+  switch (action.type) {
+    case 'TOGGLE_ALL':
+      return {
+        selectAll: action.payload,
+        items: state.items.map((item) => ({
+          ...item,
+          checked: action.payload,
+        })),
+      }
+    case 'TOGGLE_ITEM':
+      const newItems = state.items.map((item) =>
+        item.id === action.payload ? { ...item, checked: !item.checked } : item
+      )
+      return {
+        items: newItems,
+        selectAll: newItems.every((item) => item.checked),
+      }
+    default:
+      return state
+  }
+}
+
 const CheckboxList = ({
   listItems,
-  selectAllTitle = "Select All",
-}: {
-  listItems: CheckboxItem[];
-  selectAllTitle?: string;
-}) => {
-  const [items, setItems] = useState<CheckboxItem[]>(listItems);
-  const [selectAll, setSelectAll] = useState(false);
+  selectAllTitle = 'Select All',
+}: CheckboxListProps) => {
+  const [state, dispatch] = useReducer(checkboxReducer, {
+    items: listItems,
+    selectAll: false,
+  })
+  const handleSelectAll = useCallback(() => {
+    dispatch({ type: 'TOGGLE_ALL', payload: !state.selectAll })
+  }, [state.selectAll])
 
-  useEffect(() => {
-    const allChecked = items.every((item) => item.checked);
-    setSelectAll(allChecked);
-  }, [items]);
-
-  const handleSelectAll = () => {
-    const newCheckedState = !selectAll;
-    setSelectAll(newCheckedState);
-    setItems(items.map((item) => ({ ...item, checked: newCheckedState })));
-  };
-
-  const handleItemChange = (id: number) => {
-    const newItems = items.map((item) =>
-      item.id === id ? { ...item, checked: !item.checked } : item
-    );
-    setItems(newItems);
-  };
+  const handleItemChange = useCallback((id: number) => {
+    dispatch({ type: 'TOGGLE_ITEM', payload: id })
+  }, [])
 
   return (
     <div className="grid items-center justify-items-center min-h-screen">
       <div className="max-w-[370px] w-full shadow-md flex flex-col rounded-md bg-primary-foreground text-primary border border-[#EEEEEE] py-[10px] px-5">
         <label className="flex items-center justify-between py-2">
           <span className="font-normal text-sm leading-[18.2px] text-[#1F2128]">
-           {selectAllTitle}
+            {selectAllTitle}
           </span>
-          <Checkbox checked={selectAll} onCheckedChange={handleSelectAll} />
+          <Checkbox
+            checked={state.selectAll}
+            onCheckedChange={handleSelectAll}
+          />
         </label>
         <div className="max-w-[340px] w-full border-b-[0.7px] border-[#CDCDCD] my-[10px]" />
-        {items.map((item) => (
+        {state.items.map((item) => (
           <label
             key={item.id}
             className="flex items-center justify-between py-2"
@@ -69,7 +100,7 @@ const CheckboxList = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CheckboxList;
+export default CheckboxList

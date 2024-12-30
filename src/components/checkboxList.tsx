@@ -93,7 +93,7 @@ const CheckboxList = ({
           </label>
         ))}
         <div className="max-w-[340px] w-full border-b-[0.7px] border-[#CDCDCD] my-[10px]" />
-        <div className="w-full">
+        <div className="w-full py-[10px]">
           <Button className="w-full rounded-[4px]">
             <p className="font-normal text-[#1F2128]">Done</p>
           </Button>

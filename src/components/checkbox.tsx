@@ -40,7 +40,7 @@ const Checkbox = ({ className, ...props }: CheckboxProps) => (
               top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none
             `)}
       >
-        <Check size={21} strokeWidth={2} absoluteStrokeWidth />
+        <Check size={21} strokeWidth={1.2} absoluteStrokeWidth />
       </span>
     </label>
   </div>
